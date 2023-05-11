@@ -1,30 +1,13 @@
 import './App.css';
-import { useState } from 'react';
-import axios from 'axios';
-
+import { Route, Routes } from 'react-router-dom';
+import NewsPage from './pages/NewsPage';
 
 function App() {
-  const [data, setData] = useState();
-  const onClick = async () => {
-    // axios
-    // .get('https://jsonplaceholder.typicode.com/todos/1')
-    // .then((response) => {
-    //   setData(response.data);
-    // });
-    const response = await axios.get(
-      'https://jsonplaceholder.typicode.com/todos/1'
-    );
-    setData(response.data)
-  };
   return (
-    <div>
-      <div>
-        <button onClick={onClick}>불러오기</button>
-      </div>
-      {data && (
-        <textarea rows={7} value={JSON.stringify(data, null, 2)} readOnly={true} />
-      )}
-    </div>
+    <Routes>
+      <Route path="/" element={<NewsPage />} />
+      <Route path="/:category" element={<NewsPage />} />
+    </Routes>
   );
 }
 
