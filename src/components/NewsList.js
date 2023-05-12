@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
 import {styled} from  'styled-components';
 import NewsItem from './NewsItem';
 import axios from 'axios';
+import usePromise from '../lib/usePromise';
 
-const NewsItemBlock = styled.div`
+const NewsListBlock = styled.div`
   box-sizing: border-box;
   padding-bottom: 3rem;
   width: 768px;
@@ -17,39 +17,51 @@ const NewsItemBlock = styled.div`
 `;
 
 const NewsList = ({category}) => {
-  const [articles, setArticles] = useState();
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const query = category === 'all' ? '' : `&category=${category}`;
-        const response = await axios.get(
-          `https://newsapi.org/v2/top-headlines?country=us${query}&apiKey=cfb9ae9421964817b5a460ec0f660dc8`,
-        );
-        setArticles(response.data.articles);
-      }
-      catch(e) {
-        console.log(e);
-      }
-      setLoading(false);
-    };
-    fetchData();
+  const [loading, response, error] = usePromise(() =>  {
+    const query = category === 'all' ? '' : `&category=${category}`;
+    return axios.get(
+      `https://newsapi.org/v2/top-headlines?country=us${query}&apiKey=cfb9ae9421964817b5a460ec0f660dc8`,
+    );
   }, [category]);
 
+  // const [articles, setArticles] = useState();
+  // const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const query = category === 'all' ? '' : `&category=${category}`;
+  //       const response = await axios.get(
+  //         `https://newsapi.org/v2/top-headlines?country=us${query}&apiKey=cfb9ae9421964817b5a460ec0f660dc8`,
+  //       );
+  //       setArticles(response.data.articles);
+  //     }
+  //     catch(e) {
+  //       console.log(e);
+  //     }
+  //     setLoading(false);
+  //   };
+  //   fetchData();
+  // }, [category]);
+
   if(loading) {
-    return <NewsItemBlock>대기 중...</NewsItemBlock>;
+    return <NewsListBlock>대기 중...</NewsListBlock>;
   }
-  if(!articles) {
+  if(!response) {
     return null;
   }
+  if(error) {
+    return <NewsListBlock>에러발생</NewsListBlock>;
+  }
+
+  const {articles} = response.data;
   return (
-    <NewsItemBlock>
+    <NewsListBlock>
       {articles.map(article => (
         <NewsItem key={article.url} article={article} />
       ))}
-    </NewsItemBlock>
+    </NewsListBlock>
   );
 };
 
